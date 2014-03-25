@@ -8,6 +8,15 @@ use kernel::*;
 use super::super::platform::*;
 use kernel::memory::Allocator;
 
+// Color scheme constants
+static mut BG_COLOR1: u32 = 0x00556270;
+static mut FG_COLOR1: u32 = 0x4ECDC400;
+static mut BG_COLOR2: u32 = 0xFF6B6B00;
+static mut FG_COLOR2: u32 = 0x00556270;
+static mut BG_COLOR3: u32 = 0x00547980;
+static mut FG_COLOR3: u32 = 0x9DE0AD00;
+static mut CURRENT_COLOR_SCHEME: u32 = 1;
+
 pub static mut buffer: cstr = cstr {
 				p: 0 as *mut u8,
 				p_cstr_i: 0,
@@ -38,7 +47,13 @@ pub unsafe fn drawstr(msg: &str) {
 	super::super::io::set_fg(x);
 	drawchar(*c as char);
     }
-    super::super::io::set_fg(old_fg);
+    let our_fg = match CURRENT_COLOR_SCHEME {
+        1 => { FG_COLOR1 }
+	2 => { FG_COLOR2 }
+	3 => { FG_COLOR3 }
+	_ => { old_fg }
+    };
+    super::super::io::set_fg(FG_COLOR1);
 }
 
 pub unsafe fn putcstr(s: cstr)
@@ -59,8 +74,9 @@ pub unsafe fn parsekey(x: char) {
 	if (true) {
 		match x { 
 			13		=>	{ 
-						//parse();
-						prompt(false); 
+			// Fix to problem 1. We should not be parsing an enter key press
+					//parse()
+					prompt(false); 
 			}
 			127		=>	{ 
 				if (buffer.delete_char()) { 
@@ -166,6 +182,25 @@ pub unsafe fn init() {
     buffer = cstr::new(256);
     screen();
     prompt(true);
+    set_color_scheme(CURRENT_COLOR_SCHEME);
+}
+
+unsafe fn set_color_scheme(scheme: u32) {
+    CURRENT_COLOR_SCHEME = scheme;    
+    match CURRENT_COLOR_SCHEME {
+	1 => {
+	     //super::super::io::set_bg(BG_COLOR1);
+	    super::super::io::set_bg(BG_COLOR1);
+            super::super::io::fill_bg();
+	}
+	2 => {
+	     super::super::io::set_bg(BG_COLOR2);
+	}
+	3 => {
+	     super::super::io::set_bg(BG_COLOR3);
+	}
+	_ => { }
+    }
 }
 
 unsafe fn prompt(startup: bool) {
