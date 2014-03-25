@@ -109,15 +109,15 @@ pub unsafe fn draw_char(c: char)
     let map = font::bitmaps[font_offset];
 
     let mut i = -1;
-    let mut j = CURSOR_HEIGHT;
+    let mut j = 0;
     let mut addr = START_ADDR + 4*(CURSOR_X + CURSOR_WIDTH + 1 + SCREEN_WIDTH*CURSOR_Y);
-    while j > 0
+    while j < CURSOR_HEIGHT
     {
 	while i < CURSOR_WIDTH
 	{
 	    //let addr = START_ADDR + 4*(CURSOR_X + CURSOR_WIDTH - i + SCREEN_WIDTH*(CURSOR_Y + j));
 	    //let addr = START_ADDR + 4*(CURSOR_X + CURSOR_WIDTH + SCREEN_WIDTH*CURSOR_Y) - 4*i + 4*SCREEN_WIDTH*j
-	    if ((map[j] >> 4*(i)) & 1) == 1
+	    if ((map[CURSOR_HEIGHT-j] >> 4*(i)) & 1) == 1
 	    {
 		*(addr as *mut u32) = FG_COLOR;
 	    }
@@ -131,7 +131,7 @@ pub unsafe fn draw_char(c: char)
 	}
 	addr += 4*(i+SCREEN_WIDTH);
 	i = 0;
-	j -= 1;
+	j += 1;
     }
 }
 
