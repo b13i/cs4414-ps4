@@ -11,10 +11,10 @@ use kernel::memory::Allocator;
 // Color scheme constants
 static mut BG_COLOR1: u32 = 0x00556270;
 static mut FG_COLOR1: u32 = 0x4ECDC400;
-static mut BG_COLOR2: u32 = 0xFF6B6B00;
-static mut FG_COLOR2: u32 = 0x00556270;
-static mut BG_COLOR3: u32 = 0x00547980;
-static mut FG_COLOR3: u32 = 0x9DE0AD00;
+static mut BG_COLOR2: u32 = 0x00000000;
+static mut FG_COLOR2: u32 = 0xFFFFFFFF;
+static mut BG_COLOR3: u32 = 0xFFFFFFFF;
+static mut FG_COLOR3: u32 = 0x6B6BFF00;
 static mut CURRENT_COLOR_SCHEME: u32 = 1;
 
 pub static mut buffer: cstr = cstr {
@@ -47,13 +47,7 @@ pub unsafe fn drawstr(msg: &str) {
 	super::super::io::set_fg(x);
 	drawchar(*c as char);
     }
-    let our_fg = match CURRENT_COLOR_SCHEME {
-        1 => { FG_COLOR1 }
-	2 => { FG_COLOR2 }
-	3 => { FG_COLOR3 }
-	_ => { old_fg }
-    };
-    super::super::io::set_fg(FG_COLOR1);
+    super::super::io::set_fg(old_fg);
 }
 
 pub unsafe fn putcstr(s: cstr)
@@ -190,13 +184,18 @@ unsafe fn set_color_scheme(scheme: u32) {
 	1 => {
 	     //super::super::io::set_bg(BG_COLOR1);
 	    super::super::io::set_bg(BG_COLOR1);
+	    super::super::io::set_fg(FG_COLOR1);
             super::super::io::fill_bg();
 	}
 	2 => {
 	     super::super::io::set_bg(BG_COLOR2);
+	     super::super::io::set_fg(FG_COLOR2);
+	     super::super::io::fill_bg();
 	}
 	3 => {
 	     super::super::io::set_bg(BG_COLOR3);
+	     super::super::io::set_fg(FG_COLOR3);
+	     super::super::io::fill_bg();
 	}
 	_ => { }
     }
@@ -234,6 +233,15 @@ unsafe fn parse() {
 		if(y.streq(&"open")) {
 		    putstr(&"\nTEST YO");
 		    drawstr(&"\nTEST YO");
+		}
+		if(y.first_n_chars(6).streq(&"setcs=")) {
+			let (beg, end): (cstr, cstr) = y.split('=');
+			match (*(end.p as *char)) {
+				'1' => { set_color_scheme(1); }
+				'2' => { set_color_scheme(2); }
+				'3' => { set_color_scheme(3); }
+				_ => { }
+			} 
 		}
 	    }
 	    None        => { buffer.reset() }
@@ -323,6 +331,24 @@ impl cstr {
 			selfp += 1;
 		};
 		*(selfp as *char) == '\0'
+	}
+
+	unsafe fn first_n_chars(&self, len: int) -> cstr {
+		let mut selfp: uint = self.p as uint;
+		let mut s = cstr::new(256);
+		let mut i = 0;
+		loop {
+			if (*(selfp as *char) == '\0') {
+			// If we reach the end of the string while still in this loop return
+				return s;
+			}
+			if ( i == len ) {
+				return s;
+			}
+			s.add_char(*(selfp as *u8));
+			selfp += 1;
+			i += 1;
+		}
 	}
 
 	unsafe fn getarg(&self, delim: char, mut k: uint) -> Option<cstr> {

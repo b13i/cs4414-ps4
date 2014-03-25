@@ -70,7 +70,8 @@ pub unsafe fn init(width: u32, height: u32)
     }
     //set_bg(0x222C38);
     set_bg(BG_COLOR);
-    set_fg(0xFAFCFF);
+    //set_fg(0xFAFCFF);
+    set_fg(FG_COLOR);
     set_cursor_color(0xFAFCFF);
     fill_bg();	
     sgash::drawstr(&"sgash > ");
