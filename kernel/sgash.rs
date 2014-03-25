@@ -59,7 +59,7 @@ pub unsafe fn parsekey(x: char) {
 	if (true) {
 		match x { 
 			13		=>	{ 
-						parse();
+						//parse();
 						prompt(false); 
 			}
 			127		=>	{ 
