@@ -74,8 +74,7 @@ pub unsafe fn parsekey(x: char) {
 	if (true) {
 		match x { 
 			13		=>	{ 
-			// Fix to problem 1. We should not be parsing an enter key press
-					//parse()
+					parse();
 					prompt(false); 
 			}
 			127		=>	{ 
@@ -237,7 +236,7 @@ unsafe fn parse() {
 		    drawstr(&"\nTEST YO");
 		}
 	    }
-	    None        => { }
+	    None        => { buffer.reset() }
 	};
 	buffer.reset();
 }
