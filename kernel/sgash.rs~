@@ -58,7 +58,8 @@ unsafe fn drawrstr(s: rstr) {
 
 pub unsafe fn drawstr(msg: &str) {
     let old_fg = super::super::io::FG_COLOR;
-    let mut x: u32 = 0x6699AAFF;
+    //let mut x: u32 = 0x6699AAFF;
+	let mut x: u32 = 0x8238ADEC;
     for c in slice::iter(as_bytes(msg)) {
 	x = (x << 8) + (x >> 24); 
 	super::super::io::set_fg(x);
@@ -132,70 +133,113 @@ pub unsafe fn parsekey(x: char) {
 }
 
 unsafe fn parse() {
-	putstr(&"\nAbout to parse:");
-	putrstr(prompt_buffer);
-    putstr(&"\nIn Parse");
+	//putstr(&"\nAbout to parse:");
+	//putrstr(prompt_buffer);
+    //putstr(&"\nIn Parse");
     match prompt_buffer.get_arg_n(' ', 0) {
         Some(y) => {
-            putstr(&"\nFound Args: ");
-            putrstr(y);
+            //putstr(&"\nFound Args: ");
+            //putrstr(y);
 			if y.streq(&"echo") {
-				putstr(&"\necho found");
+				putstr(&"\necho echo echo echo echo...");
+				drawstr(&"\necho echo echo echo echo...");
+				match prompt_buffer.get_arg_n('"',1) {
+					Some(x) => {
+						drawrstr(x);
+						putrstr(x);
+						putstr(&"\n");
+					},
+					None => {}
+				}
 			}
 			else if y.streq(&"ls") {
+				/*
 				match CWD {
 					Some(cwd) => {cwd.list_dir();}
 					None => {}
-				}			
-				//putstr(&"\nls found");
-				/*
+				}
+				*/			
+				//putstr(&"\n");
+				
                 match prompt_buffer.get_arg_n(' ', 1) {
                     Some(x) => {
-                        putstr(&"\nLS PARAMS: ");
-                        putrstr(x);
-                        if (x.streq(&"a")) {
+                        //putstr(&"\nLS PARAMS: ");
+                        //putrstr(x);
+                        if (x.streq(&"-a")) {
                             putstr(&"\nList All");
                             drawstr(&"\nList All");
                         }
-                        if (x.streq(&"l")) {
+                        if (x.streq(&"-l")) {
                             putstr(&"\nList Long");
-                            putstr(&"\nList Long");
+                            drawstr(&"\nList Long");
                         }
                     },
-                    None => {}
+                    None => { putstr(&"\nListing"); drawstr(&"\nListing");}
                 }
-				*/
+				
 			}
 			else if y.streq(&"cat") {
-				putstr(&"\ncat found meow");
+				putstr(&"\nmeow");
+				drawstr(&"\nmeow");
 			}
 			else if y.streq(&"cd") {
-				putstr(&"\ncd found");
+				putstr(&"\nSomebody once told me the world is gunna roll me\nI ain't the sharpest tool in the shed.\nShe was looking kinda dumb with her finger and thumb\nin the shape of an L on her forehead...");
+				drawstr(&"\nSomebody once told me the world is gunna roll me\nI ain't the sharpest tool in the shed.\nShe was looking kinda dumb with her finger and thumb\nin the shape of an L on her forehead...");
 			}
 			else if y.streq(&"rm") {
-				putstr(&"\nrm found");
+				putstr(&"\n Removing File");
+				drawstr(&"\n Removing File");
 			}
 			else if y.streq(&"mkdir") {
-				putstr(&"\nmkdir found");
+				putstr(&"\n Creating Directory");
+				drawstr(&"\n Creating Directory");
 			}
 			else if y.streq(&"pwd") {
-				putstr(&"\npwd found");
+				putstr(&"\n In Dir: Root");
+				drawstr(&"\n In Dir: Root");
 			}
 			else if y.streq(&"wr") {
-				putstr(&"\nwr found");
+				putstr(&"\n Writing ");
+				drawstr(&"\n Writing ");
+				match prompt_buffer.get_arg_n('"', 1) {
+					Some(x) => {
+						putstr(&"\""); drawstr(&"\""); putrstr(x); drawrstr(x); putstr(&"\""); drawstr(&"\"");
+					},
+					None	=> { putstr(&"nothing"); drawstr(&"nothing"); }
+				}
+				putstr(&" to: ");
+				drawstr(&" to: ");
+				match prompt_buffer.get_arg_n(' ', 1) {
+					Some(x) => { putrstr(x); drawrstr(x); }
+					None 	=> { putstr(&"nil"); drawstr(&"nil"); }
+				}
+			} else if y.streq(&"mv") {
+				putstr(&"\n Moving ");
+				drawstr(&"\n Moving ");
+				match prompt_buffer.get_arg_n(' ', 1) {
+					Some(x) => { putrstr(x); drawrstr(x); },
+					None	=> { putstr(&"nil"); drawstr(&"nil"); }
+				}
+				putstr(&" to ");
+				drawstr(&" to ");
+				match prompt_buffer.get_arg_n(' ', 2) {
+					Some(x) => { putrstr(x); drawrstr(x); },
+					None 	=> { putstr(&"nil"); drawstr(&"nil"); }
+				}
 			}
             else if y.streq(&"setcs") {
-                putstr(&"\nFOUND SETCS");
-                /*
+                //putstr(&"\nFOUND SETCS");
+                
                 match prompt_buffer.get_arg_n(' ', 1) {
                     Some(n) => {
-                        putstr(&"\nFound setcs num\n");
+                        //putstr(&"\nFound setcs num\n");
                         match (*(n.p as *char)) {
                             '1' => {set_color_scheme(1);},
                             '2' => {set_color_scheme(2);},
                             '3' => {set_color_scheme(3);},
                             _   => { }
                         }
+/*
                         if (n.streq(&"1")) {
                             putstr(&"\nColor scheme 1");
                             set_color_scheme(1);
@@ -208,10 +252,11 @@ unsafe fn parse() {
                             putstr(&"\nColor scheme 3");
                             set_color_scheme(3);
                         }
+*/
                     },
                     None => {}
                 }
-                */
+     
             }
         },
         None => {
@@ -272,9 +317,9 @@ static mut ROOT : Option<file_node> = None;
 static mut CWD : Option<file_node> = None;
 pub unsafe fn init() {
     //prompt_buffer = rstr::new(256);
-    screen();
-    prompt();
     prompt_buffer = rstr::new(256);
+	screen();
+    prompt();
     set_color_scheme(CURRENT_COLOR_SCHEME);
 	//let mut test = rstr::new(256);
 	//test.set_string(&"Testing..");
@@ -308,26 +353,27 @@ pub unsafe fn write_file(file, string) {
 }
 */
 
-unsafe fn set_color_scheme(scheme: u32) {
+unsafe fn set_color_scheme(scheme: u32) -> bool {
     CURRENT_COLOR_SCHEME = scheme;
     match CURRENT_COLOR_SCHEME {
         1 => {
-            super::super::io::set_bg(BG_COLOR1);
-            super::super::io::set_fg(FG_COLOR1);
-            super::super::io::fill_bg();
+            io::set_bg(BG_COLOR1);
+            io::set_fg(FG_COLOR1);
+            io::fill_bg();
         }
         2 => {
-            super::super::io::set_bg(BG_COLOR2);
-            super::super::io::set_fg(FG_COLOR2);
-            super::super::io::fill_bg();
+            io::set_bg(BG_COLOR2);
+            io::set_fg(FG_COLOR2);
+            io::fill_bg();
         }
         3 => {
-            super::super::io::set_bg(BG_COLOR3);
-            super::super::io::set_fg(FG_COLOR3);
-            super::super::io::fill_bg();
+            io::set_bg(BG_COLOR3);
+            io::set_fg(FG_COLOR3);
+            io::fill_bg();
         }
         _ => {}
     }
+	true
 }
 
 
@@ -342,15 +388,14 @@ static DIR: uint = 1;
 struct file_node {
 	
 	filename: rstr,
-	next: Option<file_node>,
-	child: Option<file_node>,
+	next: Option<*mut file_node>,
+	child: Option<*mut file_node>,
 	num_children: uint,
 	contents: rstr,
 	node_type: uint
 }
 
 impl file_node {
-
 	
 	unsafe fn get_filename (&mut self) -> rstr {
 		self.filename
@@ -397,10 +442,10 @@ impl file_node {
 		}
 	}
 
+/*
 	unsafe fn create_directory(&mut self, dir_name : rstr) -> bool {
 		let empty : rstr = rstr::new(256);
-		let new_dir : *mut file_node = heap.alloc(2048);
-		*new_dir = file_node {
+		let new_dir : *mut file_node = file_node {
 									filename: dir_name,
 									next: None,
 									child: None,
@@ -409,7 +454,8 @@ impl file_node {
 									contents: empty};
 		self.add_child(new_dir);
 	}
-	
+*/	
+
 	unsafe fn get_file(&self, fname: rstr) -> Option<file_node> {
 		
 		let mut temp = self.child;
@@ -478,6 +524,7 @@ impl file_node {
 			None => { return false; }
 		}
 	}
+
 
 }
 
@@ -574,8 +621,8 @@ impl rstr {
         loop {
             if (*(selfp as *char) == '\0') {
                 if (found) { 
-                    putstr(&"\nFound str: ");
-                    putrstr(s);
+                    //putstr(&"\nFound str: ");
+                    //putrstr(s);
                     return Some(s); }
                 else { return None; }
             };
@@ -693,7 +740,7 @@ impl rstr {
     }
 
     unsafe fn flush(&mut self) {
-        putstr(&"\nFlushing Buffer");
+        //putstr(&"\nFlushing Buffer");
         self.p_str_i = 0;
         *(self.p as *mut char) = '\0';
     }
