@@ -342,8 +342,8 @@ static DIR: uint = 1;
 struct file_node {
 	
 	filename: rstr,
-	next: Option<*mut file_node>,
-	child: Option<*mut file_node>,
+	next: Option<file_node>,
+	child: Option<file_node>,
 	num_children: uint,
 	contents: rstr,
 	node_type: uint
@@ -399,7 +399,8 @@ impl file_node {
 
 	unsafe fn create_directory(&mut self, dir_name : rstr) -> bool {
 		let empty : rstr = rstr::new(256);
-		let new_dir : *mut file_node = file_node {
+		let new_dir : *mut file_node = heap.alloc(2048);
+		*new_dir = file_node {
 									filename: dir_name,
 									next: None,
 									child: None,
